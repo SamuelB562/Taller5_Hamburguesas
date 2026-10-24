@@ -1,0 +1,2 @@
+combo corral;10%;corral
+combo corral;5%;corral

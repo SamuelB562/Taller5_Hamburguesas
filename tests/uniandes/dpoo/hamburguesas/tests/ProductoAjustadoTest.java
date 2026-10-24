@@ -17,6 +17,7 @@ public class ProductoAjustadoTest
     private ProductoAjustado sinAjustes;
     private ProductoAjustado conAjustes;
 
+    // ProductoAjustado no muestra métodos para agregar o quitar ingredientes por esa razon se usa reflexión para llenar las listas privadas y poder cubrir esas ramas.
     @SuppressWarnings( "unchecked" )
     private void llenarLista( ProductoAjustado producto, String campo, Ingrediente ing ) throws Exception
     {

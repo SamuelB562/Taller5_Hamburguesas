@@ -1,0 +1,4 @@
+corral;14000
+
+papas medianas;5000
+gaseosa;3000

@@ -4,16 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 
 import uniandes.dpoo.hamburguesas.excepciones.IngredienteRepetidoException;
 import uniandes.dpoo.hamburguesas.excepciones.NoHayPedidoEnCursoException;
@@ -25,8 +21,10 @@ import uniandes.dpoo.hamburguesas.mundo.Restaurante;
 
 public class RestauranteTest
 {
-    @TempDir
-    Path carpeta;
+    /**
+     * Carpeta con los archivos de prueba (relativa a la carpeta del proyecto)
+     */
+    private static final String RUTA = "./data/pruebas/";
 
     private Restaurante restaurante;
     private File ingredientesOk;
@@ -34,20 +32,13 @@ public class RestauranteTest
     private File combosOk;
     private File facturaGenerada;
 
-    private File escribir( String nombre, String... lineas ) throws IOException
-    {
-        File f = carpeta.resolve( nombre ).toFile( );
-        Files.write( f.toPath( ), Arrays.asList( lineas ) );
-        return f;
-    }
-
     @BeforeEach
     void setUp( ) throws Exception
     {
         restaurante = new Restaurante( );
-        ingredientesOk = escribir( "ingredientes.txt", "lechuga;1000", "", "tomate;1000", "queso;2500" );
-        menuOk = escribir( "menu.txt", "corral;14000", "", "papas medianas;5000", "gaseosa;3000" );
-        combosOk = escribir( "combos.txt", "combo corral;10%;corral;papas medianas;gaseosa", "" );
+        ingredientesOk = new File( RUTA + "ingredientes_ok.txt" );
+        menuOk = new File( RUTA + "menu_ok.txt" );
+        combosOk = new File( RUTA + "combos_ok.txt" );
         facturaGenerada = null;
     }
 
@@ -153,45 +144,45 @@ public class RestauranteTest
 
 
     @Test
-    void testIngredienteRepetido( ) throws Exception
+    void testIngredienteRepetido( )
     {
-        File repetido = escribir( "ing_rep.txt", "lechuga;1000", "lechuga;1500" );
+        File repetido = new File( RUTA + "ingredientes_repetido.txt" );
         IngredienteRepetidoException e = assertThrows( IngredienteRepetidoException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( repetido, menuOk, combosOk ) );
         assertEquals( "El ingrediente lechuga está repetido", e.getMessage( ) );
     }
 
     @Test
-    void testProductoRepetido( ) throws Exception
+    void testProductoRepetido( )
     {
-        File repetido = escribir( "menu_rep.txt", "corral;14000", "corral;15000" );
+        File repetido = new File( RUTA + "menu_repetido.txt" );
         ProductoRepetidoException e = assertThrows( ProductoRepetidoException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( ingredientesOk, repetido, combosOk ) );
         assertEquals( "El producto corral está repetido", e.getMessage( ) );
     }
 
     @Test
-    void testComboRepetido( ) throws Exception
+    void testComboRepetido( )
     {
-        File repetido = escribir( "combos_rep.txt", "combo corral;10%;corral", "combo corral;5%;corral" );
+        File repetido = new File( RUTA + "combos_repetido.txt" );
         ProductoRepetidoException e = assertThrows( ProductoRepetidoException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( ingredientesOk, menuOk, repetido ) );
         assertEquals( "El producto combo corral está repetido", e.getMessage( ) );
     }
 
     @Test
-    void testProductoFaltanteEnCombo( ) throws Exception
+    void testProductoFaltanteEnCombo( )
     {
-        File faltante = escribir( "combos_falta.txt", "combo raro;10%;corral;pizza" );
+        File faltante = new File( RUTA + "combos_faltante.txt" );
         ProductoFaltanteException e = assertThrows( ProductoFaltanteException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( ingredientesOk, menuOk, faltante ) );
         assertEquals( "El producto pizza no aparece en la información del restaurante", e.getMessage( ) );
     }
 
     @Test
-    void testNumeroMalFormado( ) throws Exception
+    void testNumeroMalFormado( )
     {
-        File malo = escribir( "ing_malo.txt", "lechuga;mucho" );
+        File malo = new File( RUTA + "ingredientes_malformado.txt" );
         assertThrows( NumberFormatException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( malo, menuOk, combosOk ) );
     }
@@ -199,7 +190,7 @@ public class RestauranteTest
     @Test
     void testArchivoInexistente( )
     {
-        File noExiste = carpeta.resolve( "no_existe.txt" ).toFile( );
+        File noExiste = new File( RUTA + "no_existe.txt" );
         assertThrows( FileNotFoundException.class,
                 ( ) -> restaurante.cargarInformacionRestaurante( noExiste, menuOk, combosOk ) );
     }
